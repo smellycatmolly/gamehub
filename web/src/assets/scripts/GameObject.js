@@ -35,7 +35,7 @@ export class GameObjects {
 
 let last_timestamp;  //上一次执行的时刻
 const step = timestamp => {
-    for (let obj of GAME_OBJECTS) {//of遍历值，in遍历下标
+    for (let obj of GAME_OBJECTS) {  //of遍历值，in遍历下标
         if (!obj.has_called_start) {
             obj.has_called_start = true;
             obj.start();

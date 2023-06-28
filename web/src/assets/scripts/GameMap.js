@@ -3,12 +3,12 @@ import { Wall } from "./Wall";
 import { Snake } from "./Snake";
 
 export class GameMap extends GameObjects {
-    constructor(ctx, parent) { // 动态修改画布的长宽
+    constructor(ctx, parent, store) { // 动态修改画布的长宽
         super(); // 执行了GameOjects的构造函数，GameMap首先被加到了GAME_OBJECTS的数组里面
                  //一旦被加到数组里requestAnimationFrame(step)就会update、render这个GameMap
-
         this.ctx = ctx;
         this.parent = parent;
+        this.store = store;
         this.L = 0; // 绝对距离，每个格子的长宽
 
         this.rows = 13; // 如果都是长宽13，两条蛇起点分别是（11，1）（1，11）每走一步两条蛇的横竖坐标和都是偶奇偶
@@ -24,56 +24,10 @@ export class GameMap extends GameObjects {
         ];
     }
 
-    check_connectivity(g, sx, sy, tx, ty) { //flood fill算法 //gamemap，起点，终点
-        if (sx == tx && sy == ty) return true;
-        g[sx][sy] = true; //否则就是没到终点就把当前位置标记一下已经走过了
-
-        let dx = [-1, 0, 1, 0], dy = [0, 1, 0, -1];
-        for (let i = 0; i < 4; i ++ ) {
-            let x = sx + dx[i], y = sy + dy[i];
-            if (!g[x][y] && this.check_connectivity(g, x, y, tx, ty))
-                return true;
-        }
-
-        return false;
-    }
 
     // 生成地图的逻辑代码会放到后端，避免玩家改网页代码自己生成地图
     create_walls() {  //墙是在GameMap之后被加进GAME_OBJECTS数组里的，所以会覆盖绿色map
-        const g = []; // bool数组
-        for (let r = 0; r < this.rows; r ++ ) {
-            g[r] = [];
-            for (let c = 0; c < this.cols; c ++ ) {
-                g[r][c] = false;
-            }
-        }
-
-        // 给四周加上障碍物
-        for (let r = 0; r < this.rows; r ++ ) {
-            g[r][0] = g[r][this.cols - 1] = true;
-        }
-
-        for (let c = 0; c < this.cols; c ++ ) {
-            g[0][c] = g[this.rows - 1][c] = true;
-        }
-
-        // 创建随机障碍物
-        for (let i = 0; i < this.inner_walls_count / 2; i ++ ) { //每次随机一个位置
-            for (let j = 0; j < 1000; j ++ ) {
-                let r = parseInt(Math.random() * this.rows);
-                let c = parseInt(Math.random() * this.cols);
-                if (g[r][c] || g[this.rows - 1 - r][this.cols - 1 - c]) continue;
-                if (r == this.rows - 2 && c == 1 || r == 1 && c == this.cols - 2)
-                    continue;
-
-                g[r][c] = g[this.rows - 1 - r][this.cols - 1 - c] = true;
-                break; // 每放完一个就break
-            }
-        }
-
-        const copy_g  = JSON.parse(JSON.stringify(g));
-        if (!this.check_connectivity(copy_g, this.rows - 2, 1, 1, this.cols - 2))
-            return false;
+        const g = this.store.state.pk.gamemap;
 
         for (let r = 0; r < this.rows; r ++ ) {
             for (let c = 0; c < this.cols; c ++ ) {
@@ -82,8 +36,6 @@ export class GameMap extends GameObjects {
                 }
             }
         }
-
-        return true;
     }
 
     add_listening_events() {
@@ -103,14 +55,12 @@ export class GameMap extends GameObjects {
     }
 
     start() {
-        for (let i = 0; i < 100; i ++ )
-            if (this.create_walls())
-                break; // 成功创建了连通的地图
+        this.create_walls();
         
         this.add_listening_events();
     }
 
-    update_size() {
+    update_size() {  // 保证浏览器页面大小拖动时，地图大小也跟随变化
         this.L = parseInt(Math.min(this.parent.clientWidth / this.cols, this.parent.clientHeight / this.rows));
         this.ctx.canvas.width = this.L * this.cols;
         this.ctx.canvas.height = this.L * this.rows;

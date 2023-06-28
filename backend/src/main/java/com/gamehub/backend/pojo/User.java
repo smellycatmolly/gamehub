@@ -1,5 +1,7 @@
 package com.gamehub.backend.pojo;
 
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableId;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -9,8 +11,10 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor // 注解生成一个包含所有字段的构造函数，这在需要一次性设置所有属性的情况下很有用。
 
 public class User {
+    @TableId(type = IdType.AUTO) // 让id自增1  // option+enter：自动导入import
     private Integer id;
     private String username;
     private String password;
+    private String photo;
 
 }
