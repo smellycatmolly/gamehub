@@ -63,12 +63,7 @@ export class Snake extends GameObjects {
 
         const k = this.cells.length;
         for (let i = k; i > 0; i -- ) {
-            this.cells[i] = JSON.parse(JSON.stringify(this.cells[i - 1]));
-            // 所有格子都往后挪一位，就会出现新的蛇头：123 -> 1123
-        }
-
-        if (!this.gamemap.check_valid(this.next_cell)) {  // 下一步操作非法：撞了，蛇瞬间去世
-            this.status = "die";
+            this.cells[i] = JSON.parse(JSON.stringify(this.cells[i - 1]));  // 所有格子都往后挪一位，就会出现新的蛇头：123 -> 1123
         }
     }
 
@@ -105,6 +100,7 @@ export class Snake extends GameObjects {
         if (this.status === 'move') {
             this.update_move();
         }
+
         this.render();
     }
 
@@ -122,7 +118,6 @@ export class Snake extends GameObjects {
             ctx.arc(cell.x * L, cell.y * L, L / 2 * 0.8, 0, Math.PI * 2); //画圆弧（起始点，半径，起始角度，终止角度）
             ctx.fill(); //填充颜色
         }
-
         // 在每两个圆中间渲染方块，让蛇身更流畅
         for (let i = 1; i < this.cells.length; i ++ ) {
             const a = this.cells[i - 1], b = this.cells[i];

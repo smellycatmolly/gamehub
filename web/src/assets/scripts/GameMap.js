@@ -4,8 +4,7 @@ import { Snake } from "./Snake";
 
 export class GameMap extends GameObjects {
     constructor(ctx, parent, store) { // 动态修改画布的长宽
-        super(); // 执行了GameOjects的构造函数，GameMap首先被加到了GAME_OBJECTS的数组里面
-                 //一旦被加到数组里requestAnimationFrame(step)就会update、render这个GameMap
+        super(); // 执行了GameOjects的构造函数，GameMap首先被加到了GAME_OBJECTS的数组里面//一旦被加到数组里requestAnimationFrame(step)就会update、render这个GameMap
         this.ctx = ctx;
         this.parent = parent;
         this.store = store;
@@ -23,8 +22,6 @@ export class GameMap extends GameObjects {
             new Snake({id: 1, color: "#F94848", r: 1, c: this.cols - 2}, this),
         ];
     }
-
-
     // 生成地图的逻辑代码会放到后端，避免玩家改网页代码自己生成地图
     create_walls() {  //墙是在GameMap之后被加进GAME_OBJECTS数组里的，所以会覆盖绿色map
         const g = this.store.state.pk.gamemap;
@@ -41,17 +38,20 @@ export class GameMap extends GameObjects {
     add_listening_events() {
         this.ctx.canvas.focus();
 
-        const [snake0, snake1] = this.snakes;
         this.ctx.canvas.addEventListener("keydown", e => {
-            if (e.key === 'w') snake0.set_direction(0);
-            else if (e.key === 'd') snake0.set_direction(1);
-            else if (e.key === 's') snake0.set_direction(2);
-            else if (e.key === 'a') snake0.set_direction(3);
-            else if (e.key === 'ArrowUp') snake1.set_direction(0);
-            else if (e.key === 'ArrowRight') snake1.set_direction(1);
-            else if (e.key === 'ArrowDown') snake1.set_direction(2);
-            else if (e.key === 'ArrowLeft') snake1.set_direction(3);
-        })
+            let d = -1;
+            if (e.key === 'w') d = 0;
+            else if (e.key === 'd') d = 1;
+            else if (e.key === 's') d = 2;
+            else if (e.key === 'a') d = 3;
+
+            if (d >= 0) {
+                this.store.state.pk.socket.send(JSON.stringify({
+                    event: "move",
+                    direction: d,
+                }));
+            }
+        });
     }
 
     start() {
@@ -79,7 +79,6 @@ export class GameMap extends GameObjects {
             snake.next_step();
         }
     }
-
     // 检测目标位置是否合法：没有撞到两条蛇的身体和障碍物
     check_valid(cell) {  //非法判断不能写在Snake.js里，因为不能既当裁判又当运动员
         for (const wall of this.walls) {

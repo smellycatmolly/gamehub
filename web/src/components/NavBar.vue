@@ -1,7 +1,7 @@
 <template>
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
   <div class="container">
-    <router-link class="navbar-brand" :to="{name: 'home'}">King of Bots</router-link>
+    <router-link class="navbar-brand" :to="{name: 'home'}">GameHub</router-link>
     <div class="collapse navbar-collapse" id="navbarText">
       <ul class="navbar-nav me-auto mb-2 mb-lg-0">
         <li class="nav-item">
