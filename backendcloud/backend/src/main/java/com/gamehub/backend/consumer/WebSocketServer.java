@@ -3,8 +3,10 @@ package com.gamehub.backend.consumer;
 import com.alibaba.fastjson2.JSONObject;
 import com.gamehub.backend.consumer.utils.Game;
 import com.gamehub.backend.consumer.utils.JwtAuthentication;
+import com.gamehub.backend.mapper.BotMapper;
 import com.gamehub.backend.mapper.RecordMapper;
 import com.gamehub.backend.mapper.UserMapper;
+import com.gamehub.backend.pojo.Bot;
 import com.gamehub.backend.pojo.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -16,9 +18,7 @@ import javax.websocket.*;
 import javax.websocket.server.PathParam;
 import javax.websocket.server.ServerEndpoint;
 import java.io.IOException;
-import java.util.Iterator;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArraySet;
 
 @Component  // WebSocketServer 类声明为一个 Spring 组件，以便进行自动扫描和注入。
 @ServerEndpoint("/websocket/{token}")  // 注意不要以'/'结尾  注解将它标记为 WebSocket 服务器端的端点。  注解指定 WebSocket 服务器端的访问路径为 "/websocket/{token}"。客户端可以通过此路径连接到 WebSocket 服务器。
@@ -28,10 +28,11 @@ public class WebSocketServer {
     private User user;
     private Session session = null;  // 定义一个 Session 对象，用于维护与客户端的 WebSocket 会话。每个链接通过session来维护。session 在这里代表了与客户端建立的 WebSocket 连接会话对象
     // 另一种注入数据库的方式：Spring 容器在启动时会创建该组件的单个实例，并在需要时将该实例注入到其他组件中。这样可以确保在整个应用程序中共享同一个组件实例，避免了多个实例之间的状态冲突和资源浪费。但是websocket不是单例模式，所以不能像controller里一样简单注入
-    private static UserMapper userMapper;
+    public static UserMapper userMapper;
     public static RecordMapper recordMapper;
-    private static RestTemplate restTemplate;
-    private Game game = null;
+    private static BotMapper botMapper;
+    public static RestTemplate restTemplate;
+    public Game game = null;
     private final static String addPlayerUrl = "http://127.0.0.1:3001/player/add/";
     private final static String removePlayerUrl = "http://127.0.0.1:3001/player/remove/";
 
@@ -42,6 +43,10 @@ public class WebSocketServer {
     @Autowired
     public void setRecordMapper(RecordMapper recordMapper) {
         WebSocketServer.recordMapper  = recordMapper;  // 静态变量recordMapper被访问时要通过类名访问
+    }
+    @Autowired
+    public void setBotMapper(BotMapper botMapper) {
+        WebSocketServer.botMapper = botMapper;
     }
     @Autowired   // 加了Autowired的话就会看这个restTemplate是不是config里有唯一的Bean注解和它对应，如果有的话就返回return
     public void setRestTemplate(RestTemplate restTemplate) {
@@ -72,10 +77,19 @@ public class WebSocketServer {
         }
     }
 
-    public static void startGame(Integer aId, Integer bId) {  // 为了在StartGameServiceImpl里通过类名调用这个函数，要加上static
+    public static void startGame(Integer aId, Integer aBotId, Integer bId, Integer bBotId) {  // 为了在StartGameServiceImpl里通过类名调用这个函数，要加上static
         User a = userMapper.selectById(aId), b = userMapper.selectById(bId);
+        Bot botA = botMapper.selectById(aBotId), botB = botMapper.selectById(bBotId);
 
-        Game game = new Game(13, 14, 20, a.getId(), b.getId());
+        Game game = new Game(
+                13,
+                14,
+                20,
+                a.getId(),
+                botA,
+                b.getId(),
+                botB
+        );
         game.createMap();
         if (users.get(a.getId()) != null)
             users.get(a.getId()).game = game;  //  users.get(a.getId())是一个WebSocketServer对象，有game属性
@@ -111,11 +125,12 @@ public class WebSocketServer {
             users.get(b.getId()).sendMessage(respB.toJSONString());
     }
 
-    private void startMatching() {
+    private void startMatching(Integer botId) {
         System.out.println("start matching!");
         MultiValueMap<String, String> data = new LinkedMultiValueMap<>();
         data.add("user_id", this.user.getId().toString());
         data.add("rating", this.user.getRating().toString());
+        data.add("bot_id", botId.toString());
         restTemplate.postForObject(addPlayerUrl, data, String.class);
     }
 
@@ -128,9 +143,11 @@ public class WebSocketServer {
 
     private void move(int direction) {   //  判断是蛇a还是蛇b
         if (game.getPlayerA().getId().equals(user.getId())) {
-            game.setNextStepA(direction);
+            if (game.getPlayerA().getBotId().equals(-1))  // 只有亲自出马时才接受前端键盘的输入
+                game.setNextStepA(direction);
         } else if (game.getPlayerB().getId().equals(user.getId())) {
-            game.setNextStepB(direction);
+            if (game.getPlayerB().getBotId().equals(-1))
+                game.setNextStepB(direction);
         }
     }
 
@@ -140,7 +157,7 @@ public class WebSocketServer {
         JSONObject data = JSONObject.parseObject(message);  // 首先使用 JSONObject.parseObject(message) 将 JSON 字符串 message 解析为 JSONObject 对象 data。
         String event = data.getString("event");  // 然后通过 data.getString("event") 获取名为 "event" 的字段的值，并将其存储在 String 类型的变量 event 中。
         if ("start-matching".equals(event)) {
-            startMatching();
+            startMatching(data.getInteger("bot_id"));
         } else if ("stop-matching".equals(event)) {
             stopMatching();
         } else if ("move".equals(event)) {

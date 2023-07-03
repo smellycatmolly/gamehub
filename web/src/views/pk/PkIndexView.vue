@@ -5,21 +5,24 @@
 </template>
 
 <script>
-import PlayGround from '../../components/PlayGound.vue'
+import PlayGround from '../../components/PlayGround.vue'
 import MatchGround from '../../components/MatchGround.vue'
-import ResultBoard from '@/components/ResultBoard.vue';
+import ResultBoard from '../../components/ResultBoard.vue';
 import { onMounted, onUnmounted } from 'vue';  // 当组件被挂载/卸载之后执行的函数
 import { useStore } from 'vuex'
 
 export default {
     components: {
-    PlayGround,
-    MatchGround,
-    ResultBoard,
-},
+        PlayGround,
+        MatchGround,
+        ResultBoard,
+    },
     setup() {
         const store = useStore();
         const socketUrl = `ws://127.0.0.1:3000/websocket/${store.state.user.token}/`;  // 用于构建每个用户独立的 WebSocket 连接。
+
+        store.commit("updateLoser", "none");
+        store.commit("updateIsRecord", false);
 
         let socket = null;
         onMounted(() => {  // onMounted 钩子，在组件playground挂载到 DOM 后执行一些操作。
@@ -43,7 +46,7 @@ export default {
                     });
                     setTimeout(() => {
                         store.commit("updateStatus", "playing");
-                    }, 2000);  // 2s后再展示地图画面，保证能看到对手的头像
+                    }, 200);  // 2s后再展示地图画面，保证能看到对手的头像
                     store.commit("updateGame", data.game);
                 } else if (data.event === "move") {
                     console.log(data);

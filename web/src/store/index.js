@@ -1,6 +1,7 @@
 import { createStore } from 'vuex'
 import ModuleUser from './user'
 import ModulePk from './pk'
+import ModuleRecord from './record'
 
 export default createStore({   // 通过 export default createStore({ ... })，你将这个 Vuex store 实例导出，以便在其他文件中使用。
   state: {
@@ -14,6 +15,7 @@ export default createStore({   // 通过 export default createStore({ ... })，�
   modules: {
     user: ModuleUser,
     pk: ModulePk,
+    record: ModuleRecord,
   }
 })
 

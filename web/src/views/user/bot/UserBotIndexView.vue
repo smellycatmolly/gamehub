@@ -85,7 +85,7 @@
                                                     </div>
                                                     <div class="mb-3">
                                                         <label for="add-bot-code" class="form-label">代码</label>
-                                                        <VAceEditor v-model:value="botadd.content"
+                                                        <VAceEditor v-model:value="bot.content"
                                                         @init="editorInit" lang="c_cpp"
                                                         :theme="aceConfig.theme" style="height: 300px"
                                                         :options="aceConfig.options" class="ace-editor" />
@@ -200,8 +200,8 @@ export default {
                 success(resp) {
                     bots.value = resp;
                 }
-            })
-        }
+            });
+        };
 
         refresh_bots();
 
@@ -228,8 +228,8 @@ export default {
                     } else {
                         botadd.error_message = resp.error_message;
                     }
-                }
-            })
+                },
+            });
         }
 
         const update_bot = (bot) => {
@@ -253,8 +253,8 @@ export default {
                     } else {
                         botadd.error_message = resp.error_message;
                     }
-                }
-            })
+                },
+            });
         }
 
         const remove_bot = (bot) => {
@@ -271,8 +271,8 @@ export default {
                     if (resp.error_message === "success") {
                         refresh_bots();
                     }
-                }
-            })
+                },
+            });
         }
 
         const dataForm = reactive({

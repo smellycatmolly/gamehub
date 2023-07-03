@@ -8,9 +8,9 @@ import org.springframework.stereotype.Service;
 public class MatchingServiceImpl implements MatchingService {
     public final static MatchingPool matchingPool = new MatchingPool();  // 只有一个线程所以是static的
     @Override
-    public String addPlayer(Integer userId, Integer rating) {
+    public String addPlayer(Integer userId, Integer rating, Integer botId) {
         System.out.println("add player: " + userId + " " + rating);
-        matchingPool.addPlayer(userId, rating);
+        matchingPool.addPlayer(userId, rating, botId);
         return "add player success";
     }
 
