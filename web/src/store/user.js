@@ -38,7 +38,7 @@ export default {
         login(context, data) {  // 在 login action 中，context 对象包含了以下属性和方法：context.state：访问当前模块的状态（state）对象。context.getters：访问当前模块的 getters 对象，用于获取派生状态。context.commit：提交（commit）一个 mutation，用于修改状态。context.dispatch：触发（dispatch）一个 action，用于触发其他的 action。
             // 发送一个POST请求到指定的URL，并提供用户名和密码作为请求参数
             $.ajax({ // 使用jQuery的ajax方法发送异步请求的代码。在这里，它发送了一个POST请求到指定的URL，并提供了请求的参数。
-                url: "http://127.0.0.1:3000/user/account/token/",
+                url: "https://app5678.acapp.acwing.com.cn/api/user/account/token/",
                 type: "post",
                 data: {  // 请求的参数，其中包括username和password。
                 username: data.username,
@@ -60,7 +60,7 @@ export default {
         },
         getinfo(context, data) {
             $.ajax({ // 使用jQuery的ajax方法发送异步请求的代码。在这里，它发送了一个GET请求到指定的URL，并提供了请求的参数。
-                url: "http://127.0.0.1:3000/user/account/info/",
+                url: "https://app5678.acapp.acwing.com.cn/api/user/account/info/",
                 type: "get",
                 headers: {
                   Authorization: "Bearer " + context.state.token,

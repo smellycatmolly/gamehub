@@ -67,7 +67,7 @@ public class RegisterServiceImpl implements RegisterService {
         }
 
         String encodedPassword = passwordEncoder.encode(password);
-        String photo = "https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fc-ssl.duitang.com%2Fuploads%2Fblog%2F202010%2F03%2F20201003184224_275bb.jpg&refer=http%3A%2F%2Fc-ssl.duitang.com&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=auto?sec=1689684623&t=e073ddd63b4729042d5153eb191a1c3f";
+        String photo = "https://img2.baidu.com/it/u=3032738199,2421894667&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=500";
         User user = new User(null, username, encodedPassword, photo, 1500);  // id是自增的不用传入
         userMapper.insert(user);
 

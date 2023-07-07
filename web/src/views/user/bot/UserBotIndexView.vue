@@ -192,7 +192,7 @@ export default {
 
         const refresh_bots = () => {
             $.ajax({
-                url: "http://127.0.0.1:3000/user/bot/getlist/",
+                url: "https://app5678.acapp.acwing.com.cn/api/user/bot/getlist/",
                 type: "get",
                 headers: {
                     Authorization: "Bearer " + store.state.user.token,
@@ -208,7 +208,7 @@ export default {
         const add_bot = () => {
             botadd.error_message = "";
             $.ajax({
-                url: "http://127.0.0.1:3000/user/bot/add/",
+                url: "https://app5678.acapp.acwing.com.cn/api/user/bot/add/",
                 type: "post",
                 data: {
                     title: botadd.title,
@@ -235,7 +235,7 @@ export default {
         const update_bot = (bot) => {
             botadd.error_message = "";
             $.ajax({
-                url: "http://127.0.0.1:3000/user/bot/update/",
+                url: "https://app5678.acapp.acwing.com.cn/api/user/bot/update/",
                 type: "post",
                 data: {
                     bot_id: bot.id,
@@ -259,7 +259,7 @@ export default {
 
         const remove_bot = (bot) => {
             $.ajax({
-                url: "http://127.0.0.1:3000/user/bot/remove/",
+                url: "https://app5678.acapp.acwing.com.cn/api/user/bot/remove/",
                 type: "post",
                 data: {
                     bot_id: bot.id,

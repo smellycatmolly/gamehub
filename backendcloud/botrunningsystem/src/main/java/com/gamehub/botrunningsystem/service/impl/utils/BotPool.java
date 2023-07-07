@@ -22,7 +22,7 @@ public class BotPool extends Thread {
 
     private void consume(Bot bot) {  // 为了防止用户写出来的代码死循环，要加上线程，因为线程可以控制时间
         Consumer consumer = new Consumer();
-        consumer.startTimeout(2000, bot);
+        consumer.startTimeout(2000, bot);  // 5s不动就死亡，分配给两条蛇一条2s，剩下一s做冗余
     }
 
     @Override
